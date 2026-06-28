@@ -1,0 +1,336 @@
+class_name MainScene extends Node
+
+# the MAIN-scene of the game that holds references to the actual story-scene and windows
+
+signal time_passed(_secondsPassed)
+signal item_trade(giverId:String,receiverId:String,itemid:String,amount:int)	#used by queststep_deliver_item
+
+var sceneStack:Array=[]
+var currentSceneUID:int:
+	get():
+		return -1 if !getCurrentScene() else getCurrentScene(). uniqueSceneID
+			
+var currentDay = 0
+var timeOfDay:int = 6*60*60 # seconds since 00:00
+
+func _ready() -> void:
+	Global.hud = $Hud
+	Global.toolTip=$TooltipSystem
+	Global.main = self
+	Global.ES = EventSystem.new()
+	Global.QS =  QuestSystem.new()
+	Global.pc = Player.new()
+	Global.World = $GameWorld
+	$WndInventory.character=Global.pc	#TODO what if need to modify other character?
+	
+	Global.ES.registerEventTriggers()
+	# connect events from UI & logic
+	Global.QS.quest_accepted.connect(func(quest): Global.toolTip.showNotification("Quest started",quest.quest_name))
+	Global.QS.quest_completed.connect(func(quest): Global.toolTip.showNotification("Quest completed",quest.quest_name,load("res://assets/images/icons/ic_unknown.svg")))
+	Global.QS.quest_updated.connect(func(quest): Global.toolTip.showNotification("Quest updated",quest.quest_name))
+	time_passed.connect(Global.hud.on_time_passed)
+	Global.hud.map_requested.connect(func(): $WndMap.visible=true)
+	Global.hud.setup_requested.connect(func(): $WndSettings.visible=true)
+	Global.hud.log_requested.connect(func(): $WndQuest.visible=true)
+	Global.hud.inventory_requested.connect(func(): $WndInventory.visible=true)
+	Global.hud.status_requested.connect(func(): $WndStatus.visible=true)
+	Global.hud.menu_requested.connect(func(): $WndPause.visible=true)
+	
+	#var Camera_rid1 = Global.World.camera.get_camera_rid()			doesnt work with camera2D
+	#var viewport_rid1 = Global.hud.map.get_child(0).get_viewport_rid()
+	#RenderingServer.viewport_attach_camera(viewport_rid1, Camera_rid1)
+	Global.World.get_parent().remove_child(Global.World)
+	Global.hud.map.get_child(0).add_child(Global.World)	
+	#this sucks: to display world in the map-viewport it has to be its child; anotherway would be to grab the viewport-texture and assigne it to textureRect, but then there is no input possible (f.e hover on room)
+
+	postLoad()
+
+#region scene
+func runScene(ID:String, _args = [], parentSceneUniqueID = -1):
+	defferedRunScene.call_deferred(ID,_args, parentSceneUniqueID )
+
+
+func defferedRunScene(ID:String, _args = [], parentSceneUniqueID = -1):
+	var actual_scene:DefaultScene = getCurrentScene()
+	if(actual_scene && parentSceneUniqueID!=actual_scene.uniqueSceneID):
+		sceneStack.erase(actual_scene)
+		actual_scene.free()
+	# Load the new scene.
+	Log.verbose("Starting scene "+ID)
+	#var s = ResourceLoader.load(path)
+	if(ID=="interaction_scene"):
+		#Global.hud.visible=false
+		actual_scene=load("res://ui/interaction_scene.tscn").instantiate()
+		actual_scene.dialogue_gdscript=_args[0]
+		actual_scene.back_image=_args[1]
+		actual_scene.args=_args.slice(2)
+	elif(ID=="combat_scene"):
+		actual_scene=load("res://ui/combat_scene.tscn").instantiate()
+		actual_scene.setupScene(_args[0])
+	else:
+		Global.hud.hudMode=Hud.HUDMODE.Explore
+		actual_scene = GR.createScene(ID)
+		actual_scene.setupScene()
+	if(parentSceneUniqueID >= 0):
+		actual_scene.parentSceneUniqueID = parentSceneUniqueID
+	# Add it to the active scene, as child of root.
+	sceneStack.append(actual_scene)
+	get_node("Scene").add_child(actual_scene)
+	
+
+func removeScene(scene, args = []):
+	defferedRemoveScene.call_deferred(scene,args)
+	
+func defferedRemoveScene(scene, args = []):
+	if(sceneStack.has(scene)):
+		#var isCurrentScene = (scene == sceneStack.back())
+		var savedParentSceneID = scene.parentSceneUniqueID
+		var savedTag = [] #todo scene.sceneTag
+		
+		sceneStack.erase(scene)
+		scene.queue_free()
+		var parentScene = getSceneByUniqueID(savedParentSceneID)
+		if(parentScene != null):
+			parentScene.react_scene_end(savedTag, args)
+			parentScene.enterScene()
+		#if(isCurrentScene && sceneStack.back() != null):
+		#	sceneStack.back().updateCharacter()
+		#runCurrentScene()
+	if(sceneStack.size() == 0):
+		Log.verbose("Error: no more scenes in the scenestack")
+		Global.hud.clearInput()
+		Global.hud.say("Error: no more scenes in the scenestack. Please let the developer know")
+		return
+
+func getSceneByUniqueID(uID):
+	if(uID < 0):
+		return null
+	for scene in sceneStack:
+		if(scene.uniqueSceneID == uID):
+			return scene
+	return null
+
+func getCurrentScene():
+	if(sceneStack.size() > 0):
+		return sceneStack.back()
+	return null
+
+func endCurrentScene(keepWorld:bool=true):
+	if(sceneStack.size() == 1 && keepWorld):
+		#IS.stopInteractionsForPawnID("pc")
+		return
+	var currentScene = getCurrentScene()
+	if(currentScene != null):
+		currentScene.endScene()
+
+func clearSceneStack():
+	for scene in sceneStack:
+		scene.queue_free()
+	sceneStack = []
+
+func playerSpecialScene()->bool:
+	#TODO here we can place checks to visualize state change of player
+	#this is called when starting a usual nav_scene and injects a proper visual scene
+	#afterwards it returns to the nav_scene again. This could trigger another visual scene and cause a loop!
+	var _ret:bool=false
+	_ret=Global.ES.triggerEvent(EventSystem.TRIGGER.InRoom,"",[])		
+	return _ret
+
+#endregion
+
+#region Time
+func getTime()->int:
+	return timeOfDay
+
+func getDayTimeEnd()->int:
+	return 23 * 60 * 60
+	
+func getDayTimeStart()->int:
+	return 7 * 60 * 60
+
+func isVeryLate()->bool:
+	return timeOfDay >= getDayTimeEnd()
+
+## returns days in game
+func getDays()->int:
+	return currentDay
+
+func doTimeProcess(_seconds:int):
+	# This splits long sleeping times into 1 hour chunks	
+	var copySeconds = _seconds
+	while(copySeconds > 0):
+		var clippedSeconds = min(60*60, copySeconds)
+		Global.pc.processTime(clippedSeconds)
+		
+		#for characterID in charactersToUpdate:
+		#	var character = getCharacter(characterID)
+		#	if(character != null):
+		#		character.processTime(clippedSeconds)
+		
+		
+		copySeconds -= clippedSeconds
+	
+	@warning_ignore("integer_division")
+	var oldHours = floor((timeOfDay - _seconds) / 3600)
+	@warning_ignore("integer_division")
+	var newHours = floor(timeOfDay / 3600)
+	var hoursPassed = newHours - oldHours
+
+	if(hoursPassed > 0):
+		#hoursPassed(hoursPassed)
+		pass
+	copySeconds=timeOfDay+_seconds
+	while floor(copySeconds/(24*60*60))>0:
+		currentDay += 1
+		copySeconds-= 24*60*60
+		
+	timeOfDay = copySeconds
+	emit_signal("time_passed", _seconds)
+	Global.main.checkForGameOver()	#TODO here?
+
+func processTimeUntil(newseconds):
+	if(timeOfDay >= newseconds):			#todo wrap around?
+		return
+	
+	var timeDiff = newseconds - timeOfDay
+	
+	timeOfDay = newseconds
+	doTimeProcess(timeDiff)
+	return timeDiff
+
+func startNewDay():
+	#IS.beforeNewDay()
+	#GM.CS.optimize()
+	
+	# We assume that you always go to sleep at 23:00
+	if(timeOfDay > getDayTimeEnd()):
+		timeOfDay = getDayTimeEnd()				#TODO this causes to wakeup later !
+	
+	var newtime = getDayTimeStart()
+	var timediff = 24 * 60 * 60 - timeOfDay + newtime
+	
+	GR.resetFlagsOnNewDay()
+	#roomMemoriesProcessDay()
+	#npcSlaveryOnNewDay()
+	
+	doTimeProcess(timediff)
+	
+	#WHS.onNewDay()
+	#IS.afterNewDay()
+	#SCI.onNewDay()
+	#RS.onNewDay()
+	
+	#SAVE.triggerAutosave()
+
+func gotoSleep():
+	await Global.hud.fade()	#wait for fade out  #TODO fadeout  do stuff fadein
+	#TODO sleep event
+	startNewDay()
+	Global.pc.post_sleep()
+
+#endregion
+
+func defaultDefeat(_scene):
+	Global.main.clearSceneStack()	
+	Global.pc.getStat(StatEnum.Pain).modify(-9) # lower pain or it triggers defeat again
+	Global.main.runScene("nav_home")
+			
+func defaultGameOver(_scene):
+	Global.main.clearSceneStack()
+	Global.main.runScene("nav_gameover")
+
+			
+# call this in scenes to check and handle game over state
+func checkForGameOver():
+	var _n =Global.pc.getStat(StatEnum.Pain)
+	if _n.atUL:		#Pain -> game over
+		defaultGameOver(Global.main.getCurrentScene())
+		
+	_n =Global.pc.getStat(StatEnum.Insanity)
+	if _n.atUL || _n.atLL:	#Sanity -> Game over
+		defaultGameOver(Global.main.getCurrentScene())
+		
+	#TODO ? _n =Global.pc.getStat(StatEnum.Fatigue)
+	#if _n.atUL:		#Pass out -> Teleport
+	#	defaultDefeat(Global.main.getCurrentScene())
+
+#region save/load
+#called by save-dialog
+func canSave()->bool:
+	var _scene=getCurrentScene()
+	if(_scene && _scene.has_method("canSave")):
+		return _scene.canSave()
+	return true
+	
+func loadData(data):
+	timeOfDay=data["time"]
+	currentDay=data["day"]
+	var _scenes:Dictionary=data["scenes"]
+	for _scene in sceneStack:
+		_scene.queue_free()
+	for _id in _scenes.keys():
+		var _scene=GR.createScene(_id)
+		_scene.loadData(_scenes[_id])
+		_scene.setupScene()
+		sceneStack.push_back(_scene)
+		get_node("Scene").add_child(_scene)
+	getCurrentScene().enterScene()
+			
+func saveData()->Variant:
+	#Note: data["info"] used by save-UI !
+	var _scenes:={}
+	for _scene in sceneStack:
+		if !_scene.canSave():
+			Log.error("tried to save scene that has no save-support: "+str(_scene.uniqueSceneID))
+		_scenes[_scene.sceneID]=_scene.saveData()
+		
+	var data ={
+		"info": Global.pc.location+" ,day "+str(getDays()) + " "+ Util.getTimeStringHHMM(getTime()),
+		"day":currentDay,
+		"time": timeOfDay,
+		"scenes": _scenes,
+	}
+
+	return(data)
+
+func beforeLoad():
+	# to not spam signal when inventory items are re-added
+	for evt in Global.pc.inventory.item_added.get_connections():
+		evt.signal.disconnect(evt.callable)
+	for evt in Global.pc.inventory.item_removed.get_connections():
+		evt.signal.disconnect(evt.callable)
+
+func postLoad():
+	# because stats are recreated on load, events also need to be reconnected
+	Global.pc.status.registerSignalItemChanged(Global.hud.on_pc_stat_update,"pain")		
+	Global.pc.status.registerSignalItemChanged(Global.hud.on_pc_stat_update,"fatigue")
+	Global.pc.status.registerSignalItemChanged(Global.hud.on_pc_stat_update,StatEnum.Lust)
+	Global.pc.status.registerSignalItemChanged(Global.hud.on_pc_stat_update,StatEnum.Insanity)
+	Global.pc.effects.registerSignalItemsChanged(Global.hud.on_pc_effect_update)
+	Global.pc.inventory.item_added.connect(func(itemID): Global.toolTip.showNotification("Item added",itemID))
+	Global.pc.inventory.item_removed.connect(func(itemID): Global.toolTip.showNotification("Item removed",itemID))
+
+	#TODO force update HUD, also restore the running event ?
+	time_passed.emit(0)
+	Global.hud.on_pc_stat_update.call_deferred("pain",0)	#todo Global.pc.effects.forceUpdate()
+	addDebugCmds() # add debug-commands TODO is this correct place?
+
+func addDebugCmds():
+	DbgConsole.addCommand("getversion",GR,"getGameVersionString",[],["version"],"")
+	DbgConsole.addCommand("getmodules",GR,"getModuleIDs",[],["IDs"],"loaded modules")
+	DbgConsole.addCommand("getitems",GR,"getItemIDs",[],["IDs"],"available items")
+	DbgConsole.addCommand("pcadditem",Global.pc.inventory,"addItemID",["itemID"],[],"add item to player")
+	DbgConsole.addCommand("setflag",GR,"setModuleFlag",["moduleID","flagID","value"],[],"sets a flag")
+	DbgConsole.addCommand("setflagint",GR,"setModuleFlag",["moduleID","flagID","value:int"],[],"sets a NUMERIC flag")
+	DbgConsole.addCommand("getflag",GR,"getModuleFlag",["moduleID","flagID"],["value"],"gets a flag")
+	#combat encounter
+	#force quest 
+	#teleport location
+	#trigger interaction	
+	
+#endregion
+
+func _on_hud_crafting_requested(character:Character,type:String) -> void:
+	$WndCraft.character=character
+	$WndCraft.craftStation=type
+	$WndCraft.visible=true

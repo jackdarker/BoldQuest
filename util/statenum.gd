@@ -1,0 +1,6 @@
+class_name StatEnum extends Object
+
+const Pain="pain"
+const Fatigue="fatigue"
+const Lust="lust"
+const Insanity="insanity"

@@ -1,0 +1,77 @@
+class_name NavigationScene extends "res://ui/default_scene.gd"
+
+# shows a view with buttons to explore or move on
+
+var scene_ext:Array[SceneExtension]
+
+var msg_scn=ResourceLoader.load("res://ui/message_box.tscn")
+var scene_hud = preload("res://ui/fragments/hud_center_default.tscn")
+
+var menustack:Array[String]=[]	#sub-menu path
+
+func _ready() -> void:
+	enterScene()
+
+#override this
+func setupScene():
+	scene_ext=GR.getSceneExtensions(self.sceneID,self)
+	for ext in scene_ext:
+		ext.on_setupScene()
+
+func canSave()->bool:
+	return true
+
+func enterScene():
+	Global.hud.hudMode=Hud.HUDMODE.Explore
+	Global.hud.configureHudCenter(scene_hud.instantiate())
+	Global.pc.location=self.sceneID
+	Global.hud.visible=true
+	Global.hud.clearOutput()
+	Global.hud.clearInput()
+	
+	if(!self.sceneID.begins_with("vis_")): # if this is standard-nav-scene inject special scene if available
+		if(Global.main.playerSpecialScene()):
+			return
+	for ext in scene_ext:
+		ext.on_enterScene()
+	menu("")
+
+# call this after event finishs to continue previous scene	
+func continueScene():
+	Global.hud.clearInput()
+	Global.hud.addButton("next","",enterScene)
+
+func set_bg(bg:Texture2D):
+	%bg_image.texture=bg
+
+func get_bg()->Texture2D:
+	return %bg_image.texture
+
+# menuid depends on the scene; usually "walk","explore","rest","craft"
+func menu(menuid:String,no_back:=false):
+	var buttons:Array[SceneExtension.Button_Config]=[]
+	Global.hud.clearInput()
+	if menuid!="" && !no_back:
+		menustack.push_back(menuid)
+		Global.hud.addButton("back","",menu_back)
+	else:
+		menustack=[""]
+		
+	for ext in scene_ext:
+		buttons=ext.get_buttons(menuid,buttons)
+	
+	if(menuid=="" && buttons.size()==0):	#fallback if no extension
+		Log.verbose("Warning: no buttons in scene="+sceneID+" menuid="+menuid)
+		Global.hud.addButton("Next","",Global.main.removeScene.bind(self))
+	
+	for bt in buttons:		#TODO if to many buttons make subpages
+		Global.hud.addButton(bt.text,bt.tooltip,bt.cb,bt.enabled)	
+	
+
+func menu_back():
+	menustack.pop_back()
+	menu(menustack.pop_back())
+
+# emergency exit
+func navigate_home():
+	Global.main.runScene("nav_home")

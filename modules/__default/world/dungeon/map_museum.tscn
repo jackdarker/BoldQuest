@@ -1,0 +1,68 @@
+[gd_scene load_steps=5 format=3 uid="uid://bj5ehko80s5v5"]
+
+[ext_resource type="Script" uid="uid://mdmbfes3nri0" path="res://modules/__default/world/dungeon/map_museum.gd" id="1_e8yod"]
+[ext_resource type="PackedScene" uid="uid://bmqjt3osqo5g" path="res://game/world/dungeon_room.tscn" id="2_ng4h6"]
+[ext_resource type="Script" uid="uid://mwuf7c0h4tm2" path="res://game/world/room_actions/action_leave.gd" id="3_eqskp"]
+[ext_resource type="Script" uid="uid://crryxoy3fubb2" path="res://game/world/room_actions/action_looting.gd" id="3_ng4h6"]
+
+[node name="map_museum" type="Node2D"]
+script = ExtResource("1_e8yod")
+ID = "map_museum"
+floorName = "Museum"
+
+[node name="room 1" parent="." instance=ExtResource("2_ng4h6")]
+roomID = "MuseumEntry"
+canWest = false
+canNorth = false
+
+[node name="room 2" parent="." instance=ExtResource("2_ng4h6")]
+position = Vector2(64, 0)
+canNorth = false
+canSouth = false
+
+[node name="ActionLoot" type="Node" parent="room 2"]
+script = ExtResource("3_ng4h6")
+ID = "#5"
+
+[node name="room 3" parent="." instance=ExtResource("2_ng4h6")]
+position = Vector2(128, 0)
+roomID = "MuseumToMansionExit"
+canNorth = false
+canEast = false
+astarConnectedTo = Array[String](["nav_beach"])
+
+[node name="ActionLeave" type="Node" parent="room 3"]
+script = ExtResource("3_eqskp")
+target = "MansionEntry"
+label = "goto mansion"
+metadata/_custom_type_script = "uid://mwuf7c0h4tm2"
+
+[node name="room 4" parent="." instance=ExtResource("2_ng4h6")]
+position = Vector2(128, 64)
+roomDescription = "You found a secret room."
+canWest = false
+canEast = false
+
+[node name="room 5" parent="." instance=ExtResource("2_ng4h6")]
+position = Vector2(128, 128)
+roomDescription = "You found a secret room."
+canEast = false
+canSouth = false
+
+[node name="room 6" parent="." instance=ExtResource("2_ng4h6")]
+position = Vector2(64, 128)
+roomDescription = "You found a secret room."
+canNorth = false
+canSouth = false
+
+[node name="room 7" parent="." instance=ExtResource("2_ng4h6")]
+position = Vector2(0, 128)
+roomDescription = "You found a secret room."
+canWest = false
+canSouth = false
+
+[node name="room 8" parent="." instance=ExtResource("2_ng4h6")]
+position = Vector2(0, 64)
+roomDescription = "You found a secret room."
+canWest = false
+canEast = false

@@ -1,0 +1,7 @@
+[gd_scene load_steps=3 format=3 uid="uid://dsyuyfu3wvx0j"]
+
+[ext_resource type="PackedScene" uid="uid://bk5j1sap5e2xd" path="res://ui/dungeon_scene.tscn" id="1_m48t7"]
+[ext_resource type="Script" uid="uid://4fjfhsux41dq" path="res://modules/__default/world/dng_museum.gd" id="2_m48t7"]
+
+[node name="Scene" instance=ExtResource("1_m48t7")]
+script = ExtResource("2_m48t7")

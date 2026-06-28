@@ -1,0 +1,244 @@
+[gd_scene load_steps=14 format=3 uid="uid://deyv2v8gvtbsu"]
+
+[ext_resource type="Script" uid="uid://cswadx3st3b6b" path="res://ui/hud.gd" id="1_276te"]
+[ext_resource type="PackedScene" uid="uid://sfxsabvmelqu" path="res://ui/character_hud.tscn" id="2_276te"]
+[ext_resource type="PackedScene" uid="uid://c161u4nwshfs4" path="res://ui/fragments/hud_center_default.tscn" id="4_7ihmi"]
+[ext_resource type="Theme" uid="uid://tpolvb2u4itl" path="res://theme.tres" id="4_en2x2"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_1v5rv"]
+
+[sub_resource type="Theme" id="Theme_276te"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_276te"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_276te"]
+
+[sub_resource type="Gradient" id="Gradient_276te"]
+offsets = PackedFloat32Array(0, 0.8933333)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_546lt"]
+gradient = SubResource("Gradient_276te")
+
+[sub_resource type="Animation" id="Animation_en2x2"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("img_fade:visible")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("img_fade:texture:gradient:colors")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [PackedColorArray(0, 0, 0, 1, 1, 1, 1, 1)]
+}
+
+[sub_resource type="Animation" id="Animation_7ihmi"]
+resource_name = "fade"
+length = 1.5
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("img_fade:visible")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 1.5),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [true, false]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("img_fade:texture:gradient:colors")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.46666667, 0.93333334, 1.5),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [PackedColorArray(0, 0, 0, 0, 0.5686275, 0.5686275, 0.5686275, 0), PackedColorArray(0, 0, 0, 1, 0.20152658, 0.20152658, 0.20152658, 1), PackedColorArray(0, 0, 0, 1, 0.20152658, 0.20152658, 0.20152658, 1), PackedColorArray(0, 0, 0, 0.3019608, 0.5686275, 0.5686275, 0.5686275, 0)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_1v5rv"]
+_data = {
+&"RESET": SubResource("Animation_en2x2"),
+&"fade": SubResource("Animation_7ihmi")
+}
+
+[node name="Hud" type="CanvasLayer"]
+script = ExtResource("1_276te")
+
+[node name="bt_hud_on" type="Button" parent="."]
+visible = false
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = -31.0
+offset_right = 90.0
+grow_vertical = 0
+size_flags_horizontal = 0
+size_flags_vertical = 8
+text = "Show HUD"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 0
+
+[node name="LeftPanel" type="Panel" parent="HBoxContainer"]
+custom_minimum_size = Vector2(240, 0)
+layout_mode = 2
+theme = ExtResource("4_en2x2")
+theme_override_styles/panel = SubResource("StyleBoxEmpty_1v5rv")
+
+[node name="MarginContainer" type="MarginContainer" parent="HBoxContainer/LeftPanel"]
+layout_mode = 1
+anchors_preset = 9
+anchor_bottom = 1.0
+offset_right = 240.0
+grow_vertical = 2
+theme = SubResource("Theme_276te")
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="HBoxContainer/LeftPanel/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 0
+theme = ExtResource("4_en2x2")
+theme_override_constants/separation = 6
+
+[node name="time_left" type="ProgressBar" parent="HBoxContainer/LeftPanel/MarginContainer/VBoxContainer2"]
+custom_minimum_size = Vector2(200, 30)
+layout_mode = 2
+size_flags_horizontal = 0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_styles/background = SubResource("StyleBoxFlat_276te")
+value = 100.0
+show_percentage = false
+
+[node name="Label" type="Label" parent="HBoxContainer/LeftPanel/MarginContainer/VBoxContainer2/time_left"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -32.0
+offset_top = -11.5
+offset_right = 32.0
+offset_bottom = 11.5
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "Daylight"
+
+[node name="PlayerStatus" parent="HBoxContainer/LeftPanel/MarginContainer/VBoxContainer2" instance=ExtResource("2_276te")]
+layout_mode = 2
+
+[node name="Map" type="SubViewportContainer" parent="HBoxContainer/LeftPanel/MarginContainer/VBoxContainer2"]
+custom_minimum_size = Vector2(200, 200)
+layout_mode = 2
+
+[node name="SubViewport" type="SubViewport" parent="HBoxContainer/LeftPanel/MarginContainer/VBoxContainer2/Map"]
+handle_input_locally = false
+size = Vector2i(200, 200)
+render_target_update_mode = 4
+
+[node name="VBoxContainer3" type="VBoxContainer" parent="HBoxContainer/LeftPanel/MarginContainer/VBoxContainer2"]
+layout_mode = 2
+size_flags_vertical = 10
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="HBoxContainer/LeftPanel/MarginContainer/VBoxContainer2/VBoxContainer3"]
+layout_mode = 2
+
+[node name="btInventary" type="Button" parent="HBoxContainer/LeftPanel/MarginContainer/VBoxContainer2/VBoxContainer3/HBoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Inventory"
+
+[node name="btStats" type="Button" parent="HBoxContainer/LeftPanel/MarginContainer/VBoxContainer2/VBoxContainer3/HBoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Status"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="HBoxContainer/LeftPanel/MarginContainer/VBoxContainer2/VBoxContainer3"]
+layout_mode = 2
+
+[node name="btQuest" type="Button" parent="HBoxContainer/LeftPanel/MarginContainer/VBoxContainer2/VBoxContainer3/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Log"
+
+[node name="btMap" type="Button" parent="HBoxContainer/LeftPanel/MarginContainer/VBoxContainer2/VBoxContainer3/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Map"
+
+[node name="HBoxContainer3" type="HBoxContainer" parent="HBoxContainer/LeftPanel/MarginContainer/VBoxContainer2/VBoxContainer3"]
+layout_mode = 2
+
+[node name="btSave" type="Button" parent="HBoxContainer/LeftPanel/MarginContainer/VBoxContainer2/VBoxContainer3/HBoxContainer3"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Save/Load"
+
+[node name="btSettings" type="Button" parent="HBoxContainer/LeftPanel/MarginContainer/VBoxContainer2/VBoxContainer3/HBoxContainer3"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Settings"
+
+[node name="bt_hud_off" type="Button" parent="HBoxContainer/LeftPanel/MarginContainer/VBoxContainer2/VBoxContainer3"]
+layout_mode = 2
+text = "Hide Hud"
+
+[node name="Panel" type="Panel" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_276te")
+
+[node name="Center" parent="HBoxContainer/Panel" instance=ExtResource("4_7ihmi")]
+layout_mode = 1
+
+[node name="img_fade" type="TextureRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = SubResource("GradientTexture1D_546lt")
+
+[node name="anim_fade" type="AnimationPlayer" parent="."]
+libraries = {
+&"": SubResource("AnimationLibrary_1v5rv")
+}
+
+[connection signal="pressed" from="bt_hud_on" to="." method="_on_bt_hud_off_pressed"]
+[connection signal="pressed" from="HBoxContainer/LeftPanel/MarginContainer/VBoxContainer2/VBoxContainer3/HBoxContainer2/btInventary" to="." method="_on_bt_inventory_pressed"]
+[connection signal="pressed" from="HBoxContainer/LeftPanel/MarginContainer/VBoxContainer2/VBoxContainer3/HBoxContainer2/btStats" to="." method="_on_bt_status_pressed"]
+[connection signal="pressed" from="HBoxContainer/LeftPanel/MarginContainer/VBoxContainer2/VBoxContainer3/HBoxContainer/btQuest" to="." method="_on_bt_quest_pressed"]
+[connection signal="pressed" from="HBoxContainer/LeftPanel/MarginContainer/VBoxContainer2/VBoxContainer3/HBoxContainer/btMap" to="." method="_on_bt_map_pressed"]
+[connection signal="pressed" from="HBoxContainer/LeftPanel/MarginContainer/VBoxContainer2/VBoxContainer3/HBoxContainer3/btSave" to="." method="_on_bt_menu_pressed"]
+[connection signal="pressed" from="HBoxContainer/LeftPanel/MarginContainer/VBoxContainer2/VBoxContainer3/HBoxContainer3/btSettings" to="." method="_on_bt_settings_pressed"]
+[connection signal="pressed" from="HBoxContainer/LeftPanel/MarginContainer/VBoxContainer2/VBoxContainer3/bt_hud_off" to="." method="_on_bt_hud_off_pressed"]
