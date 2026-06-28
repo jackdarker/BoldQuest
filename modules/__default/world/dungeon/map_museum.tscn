@@ -1,9 +1,10 @@
-[gd_scene load_steps=5 format=3 uid="uid://bj5ehko80s5v5"]
+[gd_scene load_steps=6 format=3 uid="uid://bj5ehko80s5v5"]
 
 [ext_resource type="Script" uid="uid://mdmbfes3nri0" path="res://modules/__default/world/dungeon/map_museum.gd" id="1_e8yod"]
 [ext_resource type="PackedScene" uid="uid://bmqjt3osqo5g" path="res://game/world/dungeon_room.tscn" id="2_ng4h6"]
 [ext_resource type="Script" uid="uid://mwuf7c0h4tm2" path="res://game/world/room_actions/action_leave.gd" id="3_eqskp"]
 [ext_resource type="Script" uid="uid://crryxoy3fubb2" path="res://game/world/room_actions/action_looting.gd" id="3_ng4h6"]
+[ext_resource type="PackedScene" uid="uid://y2j25q1varsx" path="res://modules/__default/world/dungeon/rooms/rm_hallway.tscn" id="5_eqskp"]
 
 [node name="map_museum" type="Node2D"]
 script = ExtResource("1_e8yod")
@@ -61,8 +62,10 @@ roomDescription = "You found a secret room."
 canWest = false
 canSouth = false
 
-[node name="room 8" parent="." instance=ExtResource("2_ng4h6")]
+[node name="room 8" parent="." instance=ExtResource("5_eqskp")]
 position = Vector2(0, 64)
-roomDescription = "You found a secret room."
+lootGen = {
+"ID": "1"
+}
 canWest = false
 canEast = false

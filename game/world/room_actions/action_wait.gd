@@ -1,17 +1,17 @@
-class_name ActionSleep extends RoomAction
+class_name ActionWait extends RoomAction
 
 func _ready() -> void:
 	super()
 	if(label=="" || label=="some action"):
-		label= "sleep"
+		label= "rest"
 
 func can_run()->Result:
 	var _res:Result=Result.create(true,"")
-	_res.OK=false
-	_res.Msg="You cant sleep here, its not save."
 	return _res
 
 func run():
+	# 
+	Global.main.doTimeProcess(5*60)
 	Global.main.runScene("interaction_scene",
-		["generic_sleep",null,get_parent().roomID],
+		["generic_rest",null,get_parent().roomID],
 		Global.main.getCurrentScene().uniqueSceneID)

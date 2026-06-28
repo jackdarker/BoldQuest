@@ -29,6 +29,7 @@ func _ready() -> void:
 	Global.QS.quest_completed.connect(func(quest): Global.toolTip.showNotification("Quest completed",quest.quest_name,load("res://assets/images/icons/ic_unknown.svg")))
 	Global.QS.quest_updated.connect(func(quest): Global.toolTip.showNotification("Quest updated",quest.quest_name))
 	time_passed.connect(Global.hud.on_time_passed)
+	time_passed.connect(Global.World.on_time_passed)
 	Global.hud.map_requested.connect(func(): $WndMap.visible=true)
 	Global.hud.setup_requested.connect(func(): $WndSettings.visible=true)
 	Global.hud.log_requested.connect(func(): $WndQuest.visible=true)
@@ -139,8 +140,18 @@ func playerSpecialScene()->bool:
 #endregion
 
 #region Time
+
+## time since start in seconds
 func getTime()->int:
+	return timeOfDay+currentDay*24*60*60
+
+## in seconds
+func getDayTime()->int:
 	return timeOfDay
+
+## returns days in game
+func getDays()->int:
+	return currentDay
 
 func getDayTimeEnd()->int:
 	return 23 * 60 * 60
@@ -151,41 +162,32 @@ func getDayTimeStart()->int:
 func isVeryLate()->bool:
 	return timeOfDay >= getDayTimeEnd()
 
-## returns days in game
-func getDays()->int:
-	return currentDay
+
 
 func doTimeProcess(_seconds:int):
-	# This splits long sleeping times into 1 hour chunks	
-	var copySeconds = _seconds
+	# This splits long timespans into chunks	
+	var copySeconds:= _seconds
+	var copyDaytime:int=timeOfDay
+	var dayTmp:int
 	while(copySeconds > 0):
-		var clippedSeconds = min(60*60, copySeconds)
+		var clippedSeconds = min(5*60, copySeconds)	# timestep=5 min
+		copyDaytime+=clippedSeconds
+		dayTmp = copyDaytime-(24*60*60)
+		if(dayTmp>0):	#new day
+			currentDay += 1
+			copyDaytime=dayTmp
+			timeOfDay+=dayTmp
+		else:
+			timeOfDay+=clippedSeconds
 		Global.pc.processTime(clippedSeconds)
 		
 		#for characterID in charactersToUpdate:
 		#	var character = getCharacter(characterID)
 		#	if(character != null):
 		#		character.processTime(clippedSeconds)
-		
-		
+		time_passed.emit(clippedSeconds)
 		copySeconds -= clippedSeconds
-	
-	@warning_ignore("integer_division")
-	var oldHours = floor((timeOfDay - _seconds) / 3600)
-	@warning_ignore("integer_division")
-	var newHours = floor(timeOfDay / 3600)
-	var hoursPassed = newHours - oldHours
-
-	if(hoursPassed > 0):
-		#hoursPassed(hoursPassed)
-		pass
-	copySeconds=timeOfDay+_seconds
-	while floor(copySeconds/(24*60*60))>0:
-		currentDay += 1
-		copySeconds-= 24*60*60
 		
-	timeOfDay = copySeconds
-	emit_signal("time_passed", _seconds)
 	Global.main.checkForGameOver()	#TODO here?
 
 func processTimeUntil(newseconds):
@@ -285,7 +287,7 @@ func saveData()->Variant:
 		_scenes[_scene.sceneID]=_scene.saveData()
 		
 	var data ={
-		"info": Global.pc.location+" ,day "+str(getDays()) + " "+ Util.getTimeStringHHMM(getTime()),
+		"info": Global.pc.location+" ,day "+str(getDays()) + " "+ Util.getTimeStringHHMM(getDayTime()),
 		"day":currentDay,
 		"time": timeOfDay,
 		"scenes": _scenes,

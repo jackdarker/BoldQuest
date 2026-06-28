@@ -8,7 +8,9 @@ class_name DungeonFloor extends Node2D
 
 @export var ID:=""
 @export var floorName:=""
+@export var initOnStartup:=false	## TODO by default a floor is only added to world when player visits it first time, this forced to add on game-start
 
+var Mobs:Dictionary
 
 func _ready() -> void:
 	if(!ID):
@@ -16,6 +18,10 @@ func _ready() -> void:
 	if(!floorName):
 		floorName = ID
 
+func on_time_passed(_dt:int):
+	for room in getRooms():
+		room.on_time_passed(_dt)
+	pass
 
 func getRooms()->Array[DungeonRoom]:
 	var result:Array[DungeonRoom] = []

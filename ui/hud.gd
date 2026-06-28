@@ -86,7 +86,7 @@ func configureHudCenter(hudNew:Control):
 	pass
 
 func on_time_passed(_time):
-	ui_time.get_node("Label").text= "Day "+var_to_str(Global.main.getDays()) + "      "+ Util.getTimeStringHHMM(Global.main.getTime())
+	ui_time.get_node("Label").text= "Day "+var_to_str(Global.main.getDays()) + "      "+ Util.getTimeStringHHMM(Global.main.getDayTime())
 	pass
 
 func on_pc_stat_update(_key,_data):

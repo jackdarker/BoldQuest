@@ -69,6 +69,12 @@ func _ready()->void:
 	addTransitions()
 	aimCamera("room 1",true)
 
+## ticks all rooms
+func on_time_passed(_dt:int):
+	for floor in floorDict.values():
+		floor.on_time_passed(_dt)
+	pass
+
 func hasRoom(floorid: String, pos: Vector2):
 	if(!cells.has(floorid)):
 		return false

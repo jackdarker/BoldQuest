@@ -8,6 +8,8 @@ class_name DungeonRoom extends Node2D
 @export var canNorth = true
 @export var canEast = true
 @export var canSouth = true
+var lastVisited:int=0
+var lootAvailable:=false
 
 signal onEnter(room)
 signal onPreEnter(room)
@@ -23,18 +25,23 @@ func _ready() -> void:
 	if(!roomName):
 		roomName = name
 
-func addActions():
+## you have to add Action...-Nodes to the room for this 
+# some rooms might extend this to add built-in actions
+func updateHudActions():
 	var actions = get_children().filter(func(x): return (x is RoomAction))
 	for action in actions:
 		if(action.hidden()==0):
 			Global.hud.addButton(action.label, action.get_tooltip(),action.run,action.can_run )
-	
+
+func on_time_passed(_dt:int):
+	pass
 
 func _onPreEnter():
 	emit_signal("onPreEnter", self)
 
 func _onEnter():
-	addActions()
+	lastVisited=Global.main.getTime()
+	updateHudActions()
 	emit_signal("onEnter", self)
 
 func setHighlighted(high):
@@ -58,3 +65,6 @@ func getScene()->Node:
 ## returns coordinated of the room on the floor
 func getCell() -> Vector2:
 	return Vector2(round(global_position.x / GameWorld.GRID), round(global_position.y / GameWorld.GRID))
+
+func hasLoot()->bool:
+	return lootAvailable
