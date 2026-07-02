@@ -15,9 +15,13 @@ var inventory:Inventory
 var outfit:Outfit
 var skills:Inventory
 var combatAI:CombatAIBase = null		#controlled by player if this is null
+var task:Task
+var prevTask:Task
+var interruptedTask:Task
 var despawn:bool=false	#this was spawned in combat and should despawn
 
 func _init():
+	task=null
 	inventory=Inventory.new()
 	inventory.user=(self)
 	outfit=Outfit.new()
@@ -56,8 +60,31 @@ func isKnockedOut()->bool:
 func processTime(_delta:int):
 	for item in effects.getItems():
 		item.processTime(_delta)
-   
+	if(task):
+		task.processTime(_delta)
+		Global.hud.say(task.getResult().Msg)	#todo scene should render
+		if(task.result!=Task.TASKRESULT.ONGOING):
+			assignTask(null)
+	else:
+		think()
 
+func think():
+	pass
+
+func assignTask(_task:Task):
+	if(task):
+		if(prevTask):
+			prevTask.queue_free()
+		prevTask=task
+	elif(interruptedTask):
+		if(interruptedTask):
+			interruptedTask.queue_free()
+		prevTask=interruptedTask
+	task=_task
+	if(task):
+		task.char=self
+
+# region load/save
 func loadData(data):
 	location=data["location"]
 	ID=data["id"]
@@ -78,3 +105,4 @@ func saveData()->Variant:
 		"effects":effects.saveData(),
 	}
 	return(data)
+#endregion

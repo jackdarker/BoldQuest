@@ -31,6 +31,8 @@ func enterScene():
 		Global.main.removeScene(self)
 		return
 	updatePosition()
+	Global.main.doTimeProcess(5*60)
+	renderRoom()
 
 func react_scene_end(_savedTag, _args):
 	prev_pos=null	#hack to enforce room.onenter 
@@ -78,6 +80,12 @@ func beforeMove(from:DungeonRoom,to:DungeonRoom)->Result:
 			break
 	return(_res)
 ## if this returns false, a scene is injected and if the outcome is successful, the move is completed
+
+func renderRoom():
+	var mobs = player_pos.getFloor().Mobs.values()
+	for mob in mobs:
+		if mob.location==player_pos.roomID:
+			Global.hud.say(mob.getName()+" is around.")
 
 #region DefaultExtension
 ## this extension is added before others and contains some basic dungeon stuff

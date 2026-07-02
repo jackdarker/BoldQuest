@@ -1,4 +1,4 @@
-extends Character
+class_name MobLizardman extends Character
 
 
 func _init():
@@ -10,3 +10,12 @@ func _init():
 
 func getBustImage()->Texture2D:
 	return load("res://assets/images/chars/lizardman.png")
+
+func think():
+	var room=Global.World.getRoomByID(location)
+	if(room):
+		if(prevTask && prevTask is TaskIdle):
+			assignTask(TaskRest.new())
+		else:
+			assignTask(TaskIdle.new())
+	pass

@@ -21,7 +21,8 @@ func _ready() -> void:
 func on_time_passed(_dt:int):
 	for room in getRooms():
 		room.on_time_passed(_dt)
-	pass
+	for mob in Mobs.values():
+		mob.processTime(_dt)
 
 func getRooms()->Array[DungeonRoom]:
 	var result:Array[DungeonRoom] = []

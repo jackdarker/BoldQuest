@@ -23,7 +23,6 @@ metadata/_custom_type_script = "uid://mwuf7c0h4tm2"
 
 [node name="ActionSleep" type="Node" parent="room 1"]
 script = ExtResource("4_d3wtu")
-ID = null
 label = null
 
 [node name="room 2" parent="." instance=ExtResource("2_d3wtu")]
