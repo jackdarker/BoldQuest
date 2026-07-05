@@ -28,8 +28,8 @@ func _ready() -> void:
 	Global.QS.quest_accepted.connect(func(quest): Global.toolTip.showNotification("Quest started",quest.quest_name))
 	Global.QS.quest_completed.connect(func(quest): Global.toolTip.showNotification("Quest completed",quest.quest_name,load("res://assets/images/icons/ic_unknown.svg")))
 	Global.QS.quest_updated.connect(func(quest): Global.toolTip.showNotification("Quest updated",quest.quest_name))
-	time_passed.connect(Global.hud.on_time_passed)
-	time_passed.connect(Global.World.on_time_passed)
+	time_passed.connect(Global.hud.processTime)
+	time_passed.connect(Global.World.processTime)
 	Global.hud.map_requested.connect(func(): $WndMap.visible=true)
 	Global.hud.setup_requested.connect(func(): $WndSettings.visible=true)
 	Global.hud.log_requested.connect(func(): $WndQuest.visible=true)
@@ -65,6 +65,7 @@ func defferedRunScene(ID:String, _args = [], parentSceneUniqueID = -1):
 		actual_scene.dialogue_gdscript=_args[0]
 		actual_scene.back_image=_args[1]
 		actual_scene.args=_args.slice(2)
+		actual_scene.setupScene()
 	elif(ID=="combat_scene"):
 		actual_scene=load("res://ui/combat_scene.tscn").instantiate()
 		actual_scene.setupScene(_args[0])
@@ -190,15 +191,13 @@ func doTimeProcess(_seconds:int):
 		
 	Global.main.checkForGameOver()	#TODO here?
 
-func processTimeUntil(newseconds):
-	if(timeOfDay >= newseconds):			#todo wrap around?
-		return
-	
-	var timeDiff = newseconds - timeOfDay
-	
-	timeOfDay = newseconds
-	doTimeProcess(timeDiff)
-	return timeDiff
+func processTimeUntilTaskDone():
+	var taskID:=""
+	while(Global.pc.task && Global.pc.task.result==Task.TASKRESULT.ONGOING):			#todo wrap around?
+		if(taskID!="" && Global.pc.task.ID!=taskID):
+			return #if task gets interupted abort loop
+		taskID=Global.pc.task.ID
+		doTimeProcess(5*60)
 
 func startNewDay():
 	#IS.beforeNewDay()

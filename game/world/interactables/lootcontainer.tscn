@@ -1,0 +1,11 @@
+[gd_scene load_steps=3 format=3 uid="uid://cp6gu23yitpy8"]
+
+[ext_resource type="Script" uid="uid://dvigqse5o6eke" path="res://game/world/interactables/lootcontainer.gd" id="1_5q6l0"]
+[ext_resource type="Texture2D" uid="uid://dj132t4l2afvh" path="res://assets/images/map/chest.png" id="2_52ewk"]
+
+[node name="Lootcontainer" type="Node2D"]
+script = ExtResource("1_5q6l0")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+scale = Vector2(0.25, 0.25)
+texture = ExtResource("2_52ewk")

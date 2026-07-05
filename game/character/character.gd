@@ -8,7 +8,7 @@ var ID:String = "Unknown":		# just crab
 		if(ID!=value && value!=""):
 			uniqueID=value
 			ID=value
-		
+var isPlayer:=false		
 var status:StatusList
 var effects:EffectsList
 var inventory:Inventory
@@ -71,18 +71,41 @@ func processTime(_delta:int):
 func think():
 	pass
 
-func assignTask(_task:Task):
-	if(task):
-		if(prevTask):
-			prevTask.queue_free()
-		prevTask=task
-	elif(interruptedTask):
-		if(interruptedTask):
-			interruptedTask.queue_free()
+func assignTask(_newtask:Task, owner:bool=true):
+	if(!task && interruptedTask):
+		#if there is a inter.task memorize that one instead
 		prevTask=interruptedTask
-	task=_task
-	if(task):
+		interruptedTask=null #.free() not necess?
+		
+	if(task && task.result!=Task.TASKRESULT.ONGOING):
+		#actual task done, store in memory
+		prevTask=null #.free() not necess?
+		prevTask=task
+	elif(task && task.result==Task.TASKRESULT.ONGOING):
+		#actual task ongoing, mark as interupted
+		interruptedTask=task
+	
+	task=_newtask
+	if(task && owner):
 		task.char=self
+		task.start()
+
+func interuptableByTask(_task:Task)->bool:
+	if(!task):
+		return true
+	return false
+
+func interuptTask():
+	if(task):
+		task.result=Task.TASKRESULT.PAUSED
+		interruptedTask=task
+	task=null
+	
+func abortTask():
+	if(task):
+		task.result=Task.TASKRESULT.ABORTED
+		prevTask=task
+	task=null
 
 # region load/save
 func loadData(data):

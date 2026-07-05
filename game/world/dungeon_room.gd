@@ -19,6 +19,8 @@ var astarID
 @export var astarConnectedTo:Array[String]= []	# this is used by NPC; add ActionLeave for PC!
 var astarConnections:Array = []
 
+var NPCIcon=preload("res://game/world/interactables/npc.tscn")
+
 func _ready() -> void:
 	if(!roomID):
 		roomID = getFloorID()+"@"+name	# "DngABC_Floor1@Room 1
@@ -32,9 +34,29 @@ func updateHudActions():
 	for action in actions:
 		if(action.hidden()==0):
 			Global.hud.addButton(action.label, action.get_tooltip(),action.run,action.can_run )
+	actions = get_children().filter(func(x): return (x is RoomInteractable))
+	for action:RoomInteractable in actions:
+		for _task in action.getAvailableActions(Global.pc):
+			Global.hud.addButton(_task.label, _task.get_tooltip(),Global.pc.assignTask.bind(_task),_task.canRun )
 
-func on_time_passed(_dt:int):
-	pass
+
+func processTime(_dt:int):
+	var _mobsOld=get_children().filter(func(x):return(x is NPCIcon))
+	var _mobsHere=getFloor().Mobs.values().filter(func(x): return(x.location==roomID))
+	var _mobsNew=[]
+	#remove icon from removed NPC
+	var _mobsOld2=_mobsOld.filter(func(x):return (!_mobsHere.any(func(y):return(y.uniqueID==x.ID))))
+	for _mob in _mobsOld2:
+		remove_child(_mob)
+		_mob.queue_free()
+	#add icons from new NPC
+	_mobsHere=_mobsHere.filter(func(x):return(!_mobsOld.any(func(y):return(y.ID==x.uniqueID))))
+	for _mob:Character in _mobsHere:
+		var _icon:=NPCIcon.instantiate()
+		_icon.ID=_mob.uniqueID
+		_icon.label=_mob.getName()
+		add_child(_icon)
+
 
 func _onPreEnter():
 	emit_signal("onPreEnter", self)
@@ -50,7 +72,7 @@ func setHighlighted(high):
 func getFloorID():
 	return getFloor().ID
 	
-func getFloor()->Node:
+func getFloor()->DungeonFloor:
 	var myParent = get_parent()
 	while(!myParent.has_method("getRooms")):
 		myParent = myParent.get_parent()

@@ -10,7 +10,7 @@ func _ready() -> void:
 func _onPreEnter():
 	pass
 
-func on_time_passed(_dt:int):
+func processTime(_dt:int):
 	if (!lootAvailable && (Global.main.getTime()-lastVisited>(3*60*60))):
 		lootAvailable=true
 		pass

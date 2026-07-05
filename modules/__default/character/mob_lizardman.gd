@@ -13,9 +13,22 @@ func getBustImage()->Texture2D:
 
 func think():
 	var room=Global.World.getRoomByID(location)
+	var newTask
 	if(room):
-		if(prevTask && prevTask is TaskIdle):
-			assignTask(TaskRest.new())
-		else:
-			assignTask(TaskIdle.new())
-	pass
+		if(!task || (task && task is TaskIdle)):
+			if(Global.pc.location.contains(location)):
+				newTask=TaskTalk.new()
+				if(Global.pc.interuptableByTask(newTask)):
+					newTask.charB=Global.pc
+					Global.pc.interuptTask()
+					assignTask( newTask)
+					Global.pc.assignTask(newTask,false)
+					newTask.start()
+			else:
+				newTask=TaskMove.new()
+				newTask.target=Util.pickRandomFromArray(Global.World.getConnectedRooms(location))
+				assignTask( newTask)
+		#if(prevTask && prevTask is TaskIdle):
+		#	assignTask(TaskRest.new() )
+		#else:
+		#	assignTask(TaskIdle.new())

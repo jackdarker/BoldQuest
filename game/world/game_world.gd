@@ -70,9 +70,9 @@ func _ready()->void:
 	aimCamera("room 1",true)
 
 ## ticks all rooms
-func on_time_passed(_dt:int):
+func processTime(_dt:int):
 	for floor in floorDict.values():
-		floor.on_time_passed(_dt)
+		floor.processTime(_dt)
 	pass
 
 func hasRoom(floorid: String, pos: Vector2):
@@ -147,6 +147,13 @@ func canGo(floorid: String, pos: Vector2, dir):
 			return true
 		return false
 	return false
+
+func getConnectedRooms(roomid: String)->Array:
+	var _rooms:Array=[applyDirectionID(roomid,Direction.WEST),
+		applyDirectionID(roomid,Direction.NORTH),
+		applyDirectionID(roomid,Direction.EAST),
+		applyDirectionID(roomid,Direction.SOUTH)]
+	return(_rooms.filter(func(x):return(x!="")))
 
 func registerRoom(floorid, room:DungeonRoom):
 	var pos:Vector2 = room.getCell()
@@ -290,11 +297,11 @@ func updateDarknessSize():
 func entering_room(room:DungeonRoom):
 	on_enter_room.emit(room)
 
-func _on_bt_w_pressed() -> void:
-	if(canGoID(highlightedRoom.roomID,Direction.WEST)):
-		aimCamera(applyDirectionID(highlightedRoom.roomID,Direction.WEST))
+#func _on_bt_w_pressed() -> void:
+#	if(canGoID(highlightedRoom.roomID,Direction.WEST)):
+#		aimCamera(applyDirectionID(highlightedRoom.roomID,Direction.WEST))
 
 
-func _on_bt_e_pressed() -> void:
-	if(canGoID(highlightedRoom.roomID,Direction.EAST)):
-		aimCamera(applyDirectionID(highlightedRoom.roomID,Direction.EAST))
+#func _on_bt_e_pressed() -> void:
+#	if(canGoID(highlightedRoom.roomID,Direction.EAST)):
+#		aimCamera(applyDirectionID(highlightedRoom.roomID,Direction.EAST))

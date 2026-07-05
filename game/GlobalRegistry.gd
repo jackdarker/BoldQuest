@@ -25,6 +25,8 @@ var events: Dictionary = {}		#see ES !
 var items: Dictionary = {}
 var itemsByTag: Dictionary = {}
 
+var loottables: Dictionary = {}
+
 var maps: Dictionary = {}
 
 var recipes: Dictionary = {}
@@ -479,6 +481,7 @@ func createItem(ID: String)->ItemBase:
 		return null
 	var newItem = items[ID].new()
 	return newItem
+	
 func getItemIDs()->Array:
 	return items.keys()
 #endregion
@@ -571,6 +574,34 @@ func getTutorial(ID: String)->TutorialData:
 	
 #endregion
 
+#region Loottables
+#path is file or directory
+func registerLoottable(moduleID:String,path: String):
+	#-------------------------------------------------------------------
+	#if path is dir, import dir
+	if(DirAccess.dir_exists_absolute(path)):
+		for file in DirAccess.get_files_at(path):
+			if file.get_extension().to_lower()=="gd" || file.get_extension().to_lower()=="gdc" :
+				registerLoottable(moduleID,path.path_join(file))
+		return
+	#-------------------------------------------------------------------
+	var item = load(path)
+	var itemObject = item.new()
+	if !loottables.has(itemObject.ID):
+		loottables[itemObject.ID]={}
+	loottables[itemObject.ID][itemObject.tier] = itemObject	#we instantiate right here not in get...
+
+func getLoottable(ID:String, tier:int)->LootTable:
+	if(!loottables.has(ID)):
+		Log.error("ERROR: loottable with the ID "+ID+" wasn't found")
+		return null
+	if(!loottables[ID].has(tier)):
+		Log.error("ERROR: loottable "+ID+" has no tier "+str(tier))
+		return null
+	var newItem = loottables[ID][tier]
+	return newItem
+	
+#endregion
 
 #region effects
 func registerEffect(moduleID:String,path: String):

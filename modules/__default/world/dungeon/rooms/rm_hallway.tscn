@@ -8,3 +8,6 @@ script = ExtResource("2_xn4hy")
 lootGen = {
 "ID": "0"
 }
+
+[node name="room" parent="." index="0"]
+scale = Vector2(1, 1)

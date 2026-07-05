@@ -1,4 +1,4 @@
-class_name Task extends Node
+class_name Task extends RefCounted
 
 ## NPC pick a task and execute them until done, interuppted or aborted
 enum TASKTYPE {NONE=0}
@@ -9,25 +9,41 @@ var progress:int=0
 var duration:int=10*60
 var result:=TASKRESULT.ONGOING
 var deleteMe:bool=false
+var label:String:
+	get():
+		return ID
+	set(value):
+		pass
 
-var wrefCharacter:WeakRef=null
+func get_tooltip()->String:
+	return ""
+
+var wrefCharacter:WeakRef
 var char:Character:
 	set(value):
 		wrefCharacter=weakref(value)
 	get:
-		return(wrefCharacter.get_ref())
+		if(wrefCharacter):
+			return(wrefCharacter.get_ref())
+		else:
+			return null
 
-func _ready() -> void:
-	pass
+var wrefCharacterB:WeakRef
+var charB:Character:
+	set(value):
+		wrefCharacterB=weakref(value)
+	get:
+		if(wrefCharacterB):
+			return(wrefCharacterB.get_ref())
+		else:
+			return null
 
-func start():
+func _init() -> void:
 	progress=0
 	result=TASKRESULT.ONGOING
-	pass
 
-func abort():
+func start():
 	pass
-
 
 func processTime(_delta:int):
 	if(result!=TASKRESULT.ONGOING):
@@ -35,7 +51,12 @@ func processTime(_delta:int):
 	progress=min(duration,progress+_delta)
 	if(progress>=duration):
 		result=TASKRESULT.DONE
+		onDone()
 	pass
+
+func canRun()->Result:
+	var _res:Result=Result.create(true,"")
+	return _res
 
 func getResult()->Result:
 	var _res:=Result.create(true,"")
@@ -45,3 +66,6 @@ func getResult()->Result:
 		_res.Msg="Task unfinished"
 		
 	return _res
+
+func onDone():
+	pass

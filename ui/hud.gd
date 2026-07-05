@@ -85,7 +85,7 @@ func configureHudCenter(hudNew:Control):
 	hudCenter=hudNew
 	pass
 
-func on_time_passed(_time):
+func processTime(_time):
 	ui_time.get_node("Label").text= "Day "+var_to_str(Global.main.getDays()) + "      "+ Util.getTimeStringHHMM(Global.main.getDayTime())
 	pass
 

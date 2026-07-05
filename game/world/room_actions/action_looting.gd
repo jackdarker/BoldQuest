@@ -13,6 +13,8 @@ func can_run()->Result:
 	return _res
 
 func run():
-	Global.main.runScene("interaction_scene",
-		["generic_looting",null,ID],
-		Global.main.getCurrentScene().uniqueSceneID)
+	#Global.main.runScene("interaction_scene",
+	#	["generic_looting",null,ID],
+	#	Global.main.getCurrentScene().uniqueSceneID)
+	Global.pc.assignTask(TaskLooting.new())
+	Global.main.processTimeUntilTaskDone()

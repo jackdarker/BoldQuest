@@ -18,11 +18,12 @@ func _ready() -> void:
 	if(!floorName):
 		floorName = ID
 
-func on_time_passed(_dt:int):
-	for room in getRooms():
-		room.on_time_passed(_dt)
+func processTime(_dt:int):
 	for mob in Mobs.values():
 		mob.processTime(_dt)
+	for room in getRooms():
+		room.processTime(_dt)	
+
 
 func getRooms()->Array[DungeonRoom]:
 	var result:Array[DungeonRoom] = []

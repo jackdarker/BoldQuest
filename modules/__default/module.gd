@@ -40,6 +40,9 @@ func _init()-> void :
 	quests = [
 		"res://modules/__default/quest",
 	]
+	loottables = [
+		"res://modules/__default/loottables",
+	]
 
 func getFlags():
 	return {

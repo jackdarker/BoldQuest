@@ -31,6 +31,7 @@ func enterScene():
 		Global.main.removeScene(self)
 		return
 	updatePosition()
+	Global.pc.location=self.sceneID+"|"+player_pos.roomID
 	Global.main.doTimeProcess(5*60)
 	renderRoom()
 
