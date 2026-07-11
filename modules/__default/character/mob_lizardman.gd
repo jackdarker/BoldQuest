@@ -18,7 +18,7 @@ func think():
 		if(!task || (task && task is TaskIdle)):
 			if(Global.pc.location.contains(location)):
 				newTask=TaskTalk.new()
-				if(Global.pc.interuptableByTask(newTask)):
+???				if(Global.pc.interuptableByTask(newTask)):
 					newTask.charB=Global.pc
 					Global.pc.interuptTask()
 					assignTask( newTask)

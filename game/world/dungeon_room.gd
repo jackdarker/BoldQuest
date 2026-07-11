@@ -36,9 +36,12 @@ func updateHudActions():
 			Global.hud.addButton(action.label, action.get_tooltip(),action.run,action.can_run )
 	actions = get_children().filter(func(x): return (x is RoomInteractable))
 	for action:RoomInteractable in actions:
-		for _task in action.getAvailableActions(Global.pc):
-			Global.hud.addButton(_task.label, _task.get_tooltip(),Global.pc.assignTask.bind(_task),_task.canRun )
-
+		if(action.hidden()==0):
+			action.visible=true
+			for _task in action.getAvailableActions(Global.pc):
+				Global.hud.addButton(_task.label, _task.get_tooltip(),Global.pc.assignTask.bind(_task),_task.canRun )
+		else:
+			action.visible=false
 
 func processTime(_dt:int):
 	var _mobsOld=get_children().filter(func(x):return(x is NPCIcon))

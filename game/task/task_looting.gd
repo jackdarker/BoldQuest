@@ -16,10 +16,6 @@ func getResult()->Result:
 		
 	return _res
 
-#func interuptableByTask(_task:Task)->bool:
-#	if(_task.ID=="Talking"):
-#		return true
-#	return false
 func start():
 	Global.main.processTimeUntilTaskDone()
 	

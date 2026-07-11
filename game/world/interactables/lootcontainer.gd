@@ -1,6 +1,6 @@
 class_name LootContainer extends RoomInteractable
 
-@export var restocktime:=30*60
+@export var restockTime:=30*60
 @export var lootTableID="loot_museum"
 var timeSinceLooted:=-1
 var loot:Array=[]
@@ -14,8 +14,9 @@ func getAvailableActions(_char:Character)->Array[Task]:
 	return [_task]
 
 func processTime(_delta:int):
-	if(timeSinceLooted>0 && ((Global.main.getTime()-timeSinceLooted)>restocktime)):
+	if(timeSinceLooted>0 && ((Global.main.getTime()-timeSinceLooted)>restockTime)):
 		timeSinceLooted=-1
 
 func getLoot()->Array:
+	timeSinceLooted=Global.main.getTime()
 	return (LootGenerator.generateItems(lootTableID,15,1))

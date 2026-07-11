@@ -1,7 +1,8 @@
-[gd_scene load_steps=5 format=3 uid="uid://bj5ehko80s5v5"]
+[gd_scene load_steps=6 format=3 uid="uid://bj5ehko80s5v5"]
 
 [ext_resource type="Script" uid="uid://mdmbfes3nri0" path="res://modules/__default/world/dungeon/map_museum.gd" id="1_e8yod"]
 [ext_resource type="PackedScene" uid="uid://bmqjt3osqo5g" path="res://game/world/dungeon_room.tscn" id="2_ng4h6"]
+[ext_resource type="PackedScene" uid="uid://cmpohxdtarwl6" path="res://game/world/interactables/pickup.tscn" id="4_eqskp"]
 [ext_resource type="PackedScene" uid="uid://cp6gu23yitpy8" path="res://game/world/interactables/lootcontainer.tscn" id="5_6lhn8"]
 [ext_resource type="PackedScene" uid="uid://b37lrja0bpjtm" path="res://game/world/interactables/exit.tscn" id="7_6lhn8"]
 
@@ -65,3 +66,7 @@ canEast = false
 position = Vector2(8, 8)
 target = "MansionEntry"
 label = "a fence door with a mansion behind"
+
+[node name="Pickup" parent="room 8" instance=ExtResource("4_eqskp")]
+position = Vector2(-8, -8)
+itemID = "seashell"
