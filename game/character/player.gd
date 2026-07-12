@@ -16,3 +16,11 @@ func post_sleep():
 	
 func getBustImage()->Texture2D:
 	return load("res://assets/images/chars/bust_pc_start.png")
+
+func interuptableByTask(_task:Task)->bool:
+	if(!task):
+		return true
+	else:
+		match(task.TASKTYPE):
+			_:
+				return false

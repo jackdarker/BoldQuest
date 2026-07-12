@@ -8,6 +8,7 @@ var msg_scn=ResourceLoader.load("res://ui/message_box.tscn")
 var scene_hud = preload("res://ui/fragments/hud_center_default.tscn")
 
 var menustack:Array[String]=[]	#sub-menu path
+var force_exit:=false	## extension might call this to force return to previous scene
 
 func _ready() -> void:
 	enterScene()
@@ -49,6 +50,9 @@ func get_bg()->Texture2D:
 
 # menuid depends on the scene; usually "walk","explore","rest","craft"
 func menu(menuid:String,no_back:=false):
+	if (force_exit==true):
+		Global.main.removeScene.call(self)	# leave if the bit was set in extension
+		return
 	var buttons:Array[SceneExtension.Button_Config]=[]
 	Global.hud.clearInput()
 	if menuid!="" && !no_back:
@@ -71,6 +75,8 @@ func menu(menuid:String,no_back:=false):
 func menu_back():
 	menustack.pop_back()
 	menu(menustack.pop_back())
+
+
 
 # emergency exit
 func navigate_home():

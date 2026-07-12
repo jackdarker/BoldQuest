@@ -10,6 +10,7 @@ var chars:Array[Character]=[]
 
 var enabled_buttons : Array[Button] = []
 
+
 func setupScene():
 	for arg in args:
 		if(arg is Character):

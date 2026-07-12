@@ -2,9 +2,13 @@ class_name LootContainer extends RoomInteractable
 
 @export var restockTime:=30*60
 @export var lootTableID="loot_museum"
+
 var timeSinceLooted:=-1
 var loot:Array=[]
 
+func getIconOffset()->Vector2:
+	return Vector2(1,-1)
+	
 func hidden()->int:
 	return(0 if timeSinceLooted<0 else 255)
 

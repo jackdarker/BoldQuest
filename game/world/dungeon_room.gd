@@ -9,7 +9,6 @@ class_name DungeonRoom extends Node2D
 @export var canEast = true
 @export var canSouth = true
 var lastVisited:int=0
-var lootAvailable:=false
 
 signal onEnter(room)
 signal onPreEnter(room)
@@ -27,6 +26,21 @@ func _ready() -> void:
 	if(!roomName):
 		roomName = name
 
+## distribute interactable-icons in a grid
+func _alignIcons():
+	if(visible):
+		var _groups={}
+		for child:Node in get_children().filter(func(x):return(x is RoomInteractable)):
+			#var _class=child.get("class_name") doesnt work
+			var _class=Vector2(8,8)*child.getIconOffset() #_class is vector
+			if(!_groups.has(_class)):
+				_groups[_class]=[]
+			_groups[_class].push_back(child)
+		
+		for _class in _groups.keys():
+			for child in _groups[_class]:
+				child.position=_class
+
 ## you have to add Action...-Nodes to the room for this 
 # some rooms might extend this to add built-in actions
 func updateHudActions():
@@ -34,6 +48,7 @@ func updateHudActions():
 	for action in actions:
 		if(action.hidden()==0):
 			Global.hud.addButton(action.label, action.get_tooltip(),action.run,action.can_run )
+	#_alignIcons()
 	actions = get_children().filter(func(x): return (x is RoomInteractable))
 	for action:RoomInteractable in actions:
 		if(action.hidden()==0):
@@ -90,6 +105,3 @@ func getScene()->Node:
 ## returns coordinated of the room on the floor
 func getCell() -> Vector2:
 	return Vector2(round(global_position.x / GameWorld.GRID), round(global_position.y / GameWorld.GRID))
-
-func hasLoot()->bool:
-	return lootAvailable

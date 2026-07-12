@@ -37,13 +37,7 @@ func _ready() -> void:
 	Global.hud.status_requested.connect(func(): $WndStatus.visible=true)
 	Global.hud.menu_requested.connect(func(): $WndPause.visible=true)
 	
-	#var Camera_rid1 = Global.World.camera.get_camera_rid()			doesnt work with camera2D
-	#var viewport_rid1 = Global.hud.map.get_child(0).get_viewport_rid()
-	#RenderingServer.viewport_attach_camera(viewport_rid1, Camera_rid1)
-	Global.World.get_parent().remove_child(Global.World)
-	Global.hud.map.get_child(0).add_child(Global.World)	
-	#this sucks: to display world in the map-viewport it has to be its child; anotherway would be to grab the viewport-texture and assigne it to textureRect, but then there is no input possible (f.e hover on room)
-
+	Global.hud.map.assignWorld()
 	postLoad()
 
 #region scene

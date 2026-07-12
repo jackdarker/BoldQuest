@@ -305,3 +305,11 @@ func entering_room(room:DungeonRoom):
 #func _on_bt_e_pressed() -> void:
 #	if(canGoID(highlightedRoom.roomID,Direction.EAST)):
 #		aimCamera(applyDirectionID(highlightedRoom.roomID,Direction.EAST))
+
+
+func _on_bt_zoom_out_pressed() -> void:
+	zoomOut()
+
+
+func _on_bt_zoom_in_pressed() -> void:
+	zoomIn()

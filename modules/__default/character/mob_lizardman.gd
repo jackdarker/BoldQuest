@@ -18,7 +18,7 @@ func think():
 		if(!task || (task && task is TaskIdle)):
 			if(Global.pc.location.contains(location)):
 				newTask=TaskTalk.new()
-???				if(Global.pc.interuptableByTask(newTask)):
+				if(Global.pc.interuptableByTask(newTask)):
 					newTask.charB=Global.pc
 					Global.pc.interuptTask()
 					assignTask( newTask)
@@ -26,8 +26,8 @@ func think():
 					newTask.start()
 			else:
 				newTask=TaskMove.new()
-				newTask.target=Util.pickRandomFromArray(Global.World.getConnectedRooms(location))
-				assignTask( newTask)
+				#newTask.target=Util.pickRandomFromArray(Global.World.getConnectedRooms(location))
+				#assignTask( newTask)
 		#if(prevTask && prevTask is TaskIdle):
 		#	assignTask(TaskRest.new() )
 		#else:
