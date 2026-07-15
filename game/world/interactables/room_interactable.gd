@@ -5,6 +5,9 @@ class_name RoomInteractable extends Node2D
 
 @export var label:="some action"
 
+func get_label()->String:
+	return label
+
 func _ready() -> void:
 	pass
 
@@ -12,8 +15,13 @@ func getAvailableActions(_char:Character)->Array[Task]:
 	return []
 
 # 0= visible, 1=hide label, 255=show nothing
-func hidden()->int:
-	return 0
+var _hidden:int=0
+func get_hidden()->int:
+	return _hidden
+
+func set_hidden(value:int):
+	_hidden=value
+	visible=(_hidden==0)
 
 func _enter_tree() -> void:
 	position=Vector2(8,8)*getIconOffset()

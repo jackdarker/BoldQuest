@@ -1,21 +1,20 @@
-class_name TaskLooting extends Task
+class_name TaskTake extends Task
 
-var target:LootContainer
-
+var target:Pickup
 func get_label()->String:
-	return ("loot "+target.label)
-
+	return ("take "+target.getItem().getName())
+	
 func _init() -> void:
 	super()
-	ID="Looting"
-	duration=30*60
+	ID="Taking"
+	duration=1*60
 
 func getResult()->Result:
 	var _res:=Result.create(true,"")
 	if(result==TASKRESULT.DONE):
-		_res.Msg=char.getName()+" is done looting"
+		_res.Msg=char.getName()+" is done taking"
 	else:
-		_res.Msg=char.getName()+" is looting"
+		_res.Msg=char.getName()+" is taking"
 		
 	return _res
 
@@ -25,5 +24,5 @@ func start():
 func onDone():
 	if char.isPlayer:
 		Global.main.runScene("interaction_scene",
-		["generic_looting",null,target],
+		["generic_pickup",null,target],
 		Global.main.getCurrentScene().uniqueSceneID)

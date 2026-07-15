@@ -16,6 +16,7 @@ var _defeated:bool=false
 var map_data:=""	#needs to point to map
 var player_pos:DungeonRoom	#actual room in the map
 var prev_pos:DungeonRoom
+var lastInteracted:String
 
 func setupScene():
 	super()
@@ -41,7 +42,6 @@ func react_scene_end(_savedTag, _args):
 func _teleport(_room):
 	if(player_pos!=_room):
 		player_pos=_room
-		#updatePosition()
 		enterScene()
 
 
@@ -68,9 +68,13 @@ func updatePosition():
 			ext.on_move(player_pos)
 		prev_pos=player_pos
 		player_pos._onEnter()	#TODO addAction is called here, should we separate this?
-		
+	#updateHudActions() #some actions might have changed	
 	Global.World.aimCamera(player_pos.roomID)
 
+func updateHudActions():
+	var actions=player_pos.getInteractables("")
+	for action in actions:
+		Global.hud.addButton(action.get_label(), action.get_tooltip(),self.menu.bind(action.get_label()))
 
 ## if this returns false, the move is unsuccesful (stays in old room) and a scene is shown
 func beforeMove(from:DungeonRoom,to:DungeonRoom)->Result:
@@ -100,12 +104,24 @@ class DefaultExt extends SceneExtension:
 	func get_buttons(menuid:String,buttons:Array)->Array: 
 		var room=parent_scene.player_pos
 		if(menuid==""):
-			Global.hud.say("Where would you like to go?")
 			for x in GameWorld.Direction.keys():
 				buttons.push_back(Button_Config.new("to "+str(x),"",
 					parent_scene.moveDirection.bind(GameWorld.Direction[x]).bind(room),
 					_cango.bind(GameWorld.Direction[x]).bind(room)))
-			# see also RoomAction
+			var actions=parent_scene.player_pos.getInteractables("")
+			for action in actions:
+				if(action is RoomInteractable):
+					buttons.push_back(Button_Config.new(action.get_label(), 
+						action.get_tooltip(),parent_scene.menu.bind(action.get_label())))
+				else:
+					buttons.push_back(Button_Config.new(action.get_label(), 
+						action.get_tooltip(),Global.pc.assignTask.bind(action),action.canRun ))
+		else: #is this InteractableID? -> add actions
+			var actions=parent_scene.player_pos.getInteractables(menuid)
+			for action in actions:
+				buttons.push_back(Button_Config.new(action.get_label(), 
+					action.get_tooltip(),Global.pc.assignTask.bind(action),action.canRun ))
+			# see also RoomInteractable
 		return(buttons)
 
 	func _cango(room,dir)->Result:	

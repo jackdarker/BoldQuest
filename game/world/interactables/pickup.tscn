@@ -1,0 +1,13 @@
+[gd_scene load_steps=4 format=3 uid="uid://cmpohxdtarwl6"]
+
+[ext_resource type="Script" uid="uid://bvxe4plyjbnvj" path="res://game/world/interactables/pickup.gd" id="1_jo4mf"]
+[ext_resource type="Texture2D" uid="uid://dj132t4l2afvh" path="res://assets/images/map/chest.png" id="2_jfdsl"]
+[ext_resource type="Script" uid="uid://17n5k5dqobc2" path="res://modules/__default/item/seashell.gd" id="2_wlvur"]
+
+[node name="Pickup" type="Node2D"]
+script = ExtResource("1_jo4mf")
+itemRef = ExtResource("2_wlvur")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+scale = Vector2(0.25, 0.25)
+texture = ExtResource("2_jfdsl")

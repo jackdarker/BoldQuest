@@ -1,5 +1,8 @@
 class_name GameWorld extends Node2D
 
+#TODO when zooming out expand darkcenter to cover everything
+#TODO func to modify darkness-area
+
 ## contains all floors
 enum Direction {WEST, NORTH, EAST, SOUTH}
 const GRID:int=64	#room to room grid

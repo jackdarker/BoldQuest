@@ -44,6 +44,7 @@ func _alignIcons():
 ## you have to add Action...-Nodes to the room for this 
 # some rooms might extend this to add built-in actions
 func updateHudActions():
+	return #TODO
 	var actions = get_children().filter(func(x): return (x is RoomAction))
 	for action in actions:
 		if(action.hidden()==0):
@@ -51,12 +52,35 @@ func updateHudActions():
 	#_alignIcons()
 	actions = get_children().filter(func(x): return (x is RoomInteractable))
 	for action:RoomInteractable in actions:
-		if(action.hidden()==0):
+		if(action.get_hidden()==0):
 			action.visible=true
 			for _task in action.getAvailableActions(Global.pc):
-				Global.hud.addButton(_task.label, _task.get_tooltip(),Global.pc.assignTask.bind(_task),_task.canRun )
+				Global.hud.addButton(_task.get_label(), _task.get_tooltip(),Global.pc.assignTask.bind(_task),_task.canRun )
 		else:
 			action.visible=false
+
+#if ID is empty, returns a list of all interactable in the room [cabinet,NPC1]
+# but if the interactable has only 1 action returns the action
+#if ID is given returns a list of possible actions "cabinet"->[open,inspect]
+func getInteractables(InteractableID:String, _char:Character=Global.pc)->Array:
+	var actions=[]
+	var tmpActions
+	var objects = get_children().filter(func(x): return (x is RoomInteractable && x.get_hidden()==0))
+	if(InteractableID==""):
+		for _item in objects:
+			tmpActions=_item.getAvailableActions(_char)
+			if(tmpActions.size()==1):
+				actions.push_back(tmpActions[0])
+			else:
+				actions.push_back(_item)
+		return actions
+	#-----------------
+	var _item=objects.filter(func(x):return(x.label==InteractableID))[0]
+	assert(_item!=null)
+	if(_item):
+		return _item.getAvailableActions(_char)
+	
+	return actions
 
 func processTime(_dt:int):
 	var _mobsOld=get_children().filter(func(x):return(x is NPCIcon))

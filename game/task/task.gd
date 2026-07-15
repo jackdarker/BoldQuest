@@ -9,11 +9,9 @@ var progress:int=0
 var duration:int=10*60
 var result:=TASKRESULT.ONGOING
 var deleteMe:bool=false
-var label:String:
-	get():
-		return ID
-	set(value):
-		pass
+
+func get_label()->String:
+	return ID
 
 func get_tooltip()->String:
 	return ""
