@@ -69,8 +69,12 @@ func getInteractables(InteractableID:String, _char:Character=Global.pc)->Array:
 	if(InteractableID==""):
 		for _item in objects:
 			tmpActions=_item.getAvailableActions(_char)
-			if(tmpActions.size()==1):
+			if(tmpActions.size()==0):	#no actions for interacta
+				pass
+			elif(tmpActions.size()==1):	#if there is only 1 action dont make submenu
 				actions.push_back(tmpActions[0])
+			elif(objects.size()==1):	#if only 1 interactable just return its action
+				actions=tmpActions
 			else:
 				actions.push_back(_item)
 		return actions

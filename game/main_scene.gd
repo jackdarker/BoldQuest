@@ -5,6 +5,8 @@ class_name MainScene extends Node
 signal time_passed(_secondsPassed)
 signal item_trade(giverId:String,receiverId:String,itemid:String,amount:int)	#used by queststep_deliver_item
 
+const TIME_STEP=300	#a single slot is 5min
+
 var sceneStack:Array=[]
 var currentSceneUID:int:
 	get():
@@ -165,7 +167,7 @@ func doTimeProcess(_seconds:int):
 	var copyDaytime:int=timeOfDay
 	var dayTmp:int
 	while(copySeconds > 0):
-		var clippedSeconds = min(5*60, copySeconds)	# timestep=5 min
+		var clippedSeconds = min(TIME_STEP, copySeconds)
 		copyDaytime+=clippedSeconds
 		dayTmp = copyDaytime-(24*60*60)
 		if(dayTmp>0):	#new day
@@ -191,7 +193,7 @@ func processTimeUntilTaskDone():
 		if(taskID!="" && Global.pc.task.ID!=taskID):
 			return #if task gets interupted abort loop
 		taskID=Global.pc.task.ID
-		doTimeProcess(5*60)
+		doTimeProcess(TIME_STEP)
 
 func startNewDay():
 	#IS.beforeNewDay()

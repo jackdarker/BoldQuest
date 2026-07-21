@@ -68,6 +68,7 @@ func processTime(_delta:int):
 	else:
 		think()
 
+## override for NPC
 func think():
 	pass
 
@@ -91,9 +92,14 @@ func assignTask(_newtask:Task, owner:bool=true):
 		task.start()
 
 func interuptableByTask(_task:Task)->bool:
+	var _res:=true
 	if(!task):
-		return true
-	return false
+		if(effects.hasItemID("eff_trapped")):
+			if(!(_task is TaskStruggling)):
+				_res=false
+	else:
+		return false
+	return _res
 
 func interuptTask():
 	if(task):

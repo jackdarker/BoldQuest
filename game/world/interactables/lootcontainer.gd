@@ -18,7 +18,10 @@ func getIconOffset()->Vector2:
 func getAvailableActions(_char:Character)->Array[Task]:
 	var _task=TaskLooting.new()
 	_task.target=self
-	return [_task]
+	if(_char.interuptableByTask(_task)):
+		return [_task]
+	else:
+		return[]
 
 func processTime(_delta:int):
 	if(timeSinceLooted>0 && ((Global.main.getTime()-timeSinceLooted)>restockTime)):
